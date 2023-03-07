@@ -11,7 +11,7 @@ import sqlite3 as sql
 db = sql.connect("/dev/shm/weatherData.db")
 c = db.cursor()
 
-weatherData = WeatherData()
+weather_data = WeatherData()
 config = Config()
 
 print("Start")
@@ -71,25 +71,17 @@ while stream_reader.isOpened():
     ret, frame = stream_reader.read()
     if not ret:
         print("Could not read frame")
-
-    res = c.execute("SELECT temperature, humidity, location FROM weatherData WHERE timestamp = (SELECT max(timestamp) FROM weatherData)")
-    query_data = res.fetchone()
-    config.fetch_config()
-    print(config)
-
-    if query_data is not None:
-        weatherData.setTemperature(query_data[0])
-        weatherData.setHumidity(query_data[1])
-        weatherData.setLocation(query_data[2])
+    
+    weather_data.fetch_data()
 
     overlay_data = []
 
     if config.show_temperature:
-        overlay_data.append(("temperature", f"Temp: {weatherData.getTemperature()} deg."))
+        overlay_data.append(("temperature", f"Temp: {weather_data.getTemperature()} deg."))
     if config.show_humidity:
-        overlay_data.append(("humidity", f"{weatherData.getHumidity()}"))
+        overlay_data.append(("humidity", f"{weather_data.getHumidity()}"))
     if config.show_location:
-        overlay_data.append(("location", f"{weatherData.getLocation()}"))
+        overlay_data.append(("location", f"{weather_data.getLocation()}"))
     if config.show_datetime:
         overlay_data.append(("datetime", f"{time.asctime()}"))
 
